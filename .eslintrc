@@ -1,0 +1,15 @@
+
+{
+  "extends": [
+    "airbnb-base",
+    "prettier"
+  ],
+  "rules": {
+  "no-underscore-dangle": ["off", { "allow": ["id"]}],
+  "jsx-quotes": [1, "prefer-double"]
+  },
+  "plugins": [
+    "prettier"
+  ]
+  
+} 
