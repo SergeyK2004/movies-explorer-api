@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
-const limiter = require('./middlewares/rate-limit');
+const { limiter } = require('./middlewares/rate-limit');
 const router = require('./routes/index'); // импортируем роутер
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
