@@ -1,60 +1,31 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-
-const auth = require('./middlewares/auth');
-const { login, createUser } = require('./controllers/users');
+const helmet = require('helmet');
+const limiter = require('./middlewares/rate-limit');
+const router = require('./routes/index'); // импортируем роутер
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, NODE_ENV, DB_LINK } = process.env;
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 require('dotenv').config();
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-});
+mongoose.connect(
+  NODE_ENV === 'production' ? DB_LINK : 'mongodb://localhost:27017/bitfilmsdb',
+  {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  },
+);
 
+app.use(helmet()); // используем автоматическое проставление заголовков безопасности
+app.use(limiter); // подключим защиту от DDOS  ограничив запросы с одного IP
 app.use(requestLogger); // подключаем логгер запросов
-
-app.use('/users', auth, require('./routes/users'));
-
-app.use('/movies', auth, require('./routes/movies'));
-
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
-  login,
-);
-
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-      name: Joi.string().min(2).max(30),
-    }),
-  }),
-  createUser,
-);
-
-app.use('/', (req, res, next) => {
-  const err = new Error('PageNotFound');
-  err.statusCode = 404;
-  next(err);
-});
-
+app.use('/', router); // перенаправим все на центральный роутер
 app.use(errorLogger); // подключаем логгер ошибок
 
 // перехватим ошибки от Joi
