@@ -1,39 +1,22 @@
 const router = require('express').Router(); // создали роутер
-const { celebrate, Joi } = require('celebrate');
 const auth = require('../middlewares/auth');
 const { login, createUser } = require('../controllers/users');
+const {
+  validateUserBody,
+  validateUserAuth,
+} = require('../middlewares/validations');
+const NotFoundError = require('../errors/notFoundError');
 
-router.use('/users', auth, require('./users'));
+router.post('/signin', validateUserAuth, login);
 
-router.use('/movies', auth, require('./movies'));
+router.post('/signup', validateUserBody, createUser);
 
-router.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
-  login,
-);
-
-router.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-      name: Joi.string().min(2).max(30),
-    }),
-  }),
-  createUser,
-);
+router.use(auth);
+router.use('/users', require('./users'));
+router.use('/movies', require('./movies'));
 
 router.use('/', (req, res, next) => {
-  const err = new Error('PageNotFound');
-  err.statusCode = 404;
-  next(err);
+  next(new NotFoundError('Страница не найдена'));
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
-const NotFoundMovieError = require('../errors/notFoundMovie');
 const Movie = require('../models/movie');
 const ValidationError = require('../errors/validationError');
+const AlienMovie = require('../errors/alienMovie');
+const NotFoundError = require('../errors/notFoundError');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -9,7 +10,7 @@ module.exports.getMovies = (req, res, next) => {
 };
 module.exports.getMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(new NotFoundMovieError())
+    .orFail(new NotFoundError('Карточка фильма не найдена'))
     .then((movie) => res.send({ data: movie }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -62,26 +63,14 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.cardId)
-    .orFail(new NotFoundMovieError())
+  Movie.findById(req.params.id)
+    .orFail(new NotFoundError('Карточка фильма не найдена'))
     .then((movie) => {
       if (movie.owner._id.toString() === req.user._id) {
-        Movie.findByIdAndRemove(req.params.movieId)
-          .orFail(new NotFoundMovieError())
-          .then((foundedMovie) => res.send({ data: foundedMovie }))
-          .catch((err) => {
-            if (err.name === 'ValidationError' || err.name === 'CastError') {
-              const er = new ValidationError();
-              next(er);
-            } else {
-              next(err);
-            }
-          });
-      } else {
-        const err = new Error('Нельзя удалять чужой фильм');
-        err.statusCode = 403;
-        throw err;
+        return movie.remove()
+          .then(() => res.send({ data: movie }));
       }
+      throw new AlienMovie();
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {

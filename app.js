@@ -6,25 +6,21 @@ const helmet = require('helmet');
 const { limiter } = require('./middlewares/rate-limit');
 const router = require('./routes/index'); // импортируем роутер
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { DB_LINK, PORT } = require('./config');
 
-const { PORT = 3000, NODE_ENV, DB_LINK } = process.env;
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-require('dotenv').config();
 
-mongoose.connect(
-  NODE_ENV === 'production' ? DB_LINK : 'mongodb://localhost:27017/bitfilmsdb',
-  {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  },
-);
+mongoose.connect(DB_LINK, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
 
-app.use(helmet()); // используем автоматическое проставление заголовков безопасности
-app.use(limiter); // подключим защиту от DDOS  ограничив запросы с одного IP
 app.use(requestLogger); // подключаем логгер запросов
+app.use(limiter); // подключим защиту от DDOS  ограничив запросы с одного IP
+app.use(helmet()); // используем автоматическое проставление заголовков безопасности
 app.use('/', router); // перенаправим все на центральный роутер
 app.use(errorLogger); // подключаем логгер ошибок
 
