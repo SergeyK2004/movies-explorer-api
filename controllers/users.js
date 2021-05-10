@@ -5,7 +5,7 @@ const NotFoundError = require('../errors/notFoundError');
 const InvalidMailError = require('../errors/invalidMail');
 const ValidationError = require('../errors/validationError');
 const { JWT_SECRET } = require('../config');
-const EmailError = require('../errors/emailError');
+const ConflictError = require('../errors/conflictError');
 
 module.exports.getCurrentUser = (req, res) => {
   req.params.id = req.user._id;
@@ -44,7 +44,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
-        next(new EmailError('E-mail занят. Попробуйте другой.'));
+        next(new ConflictError('E-mail занят. Попробуйте другой.'));
       } else if (err.name === 'ValidationError') {
         const er = new ValidationError();
         next(er);
@@ -66,7 +66,7 @@ module.exports.patchUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
-        next(new EmailError('E-mail занят. Попробуйте другой.'));
+        next(new ConflictError('E-mail занят. Попробуйте другой.'));
       } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         const er = new ValidationError();
         next(er);

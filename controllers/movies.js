@@ -1,6 +1,6 @@
 const Movie = require('../models/movie');
 const ValidationError = require('../errors/validationError');
-const AlienMovie = require('../errors/alienMovie');
+const ForbiddenError = require('../errors/forbiddenError');
 const NotFoundError = require('../errors/notFoundError');
 
 module.exports.getMovies = (req, res, next) => {
@@ -70,7 +70,7 @@ module.exports.deleteMovie = (req, res, next) => {
         return movie.remove()
           .then(() => res.send({ data: movie }));
       }
-      throw new AlienMovie();
+      throw new ForbiddenError('Нельзя удалять чужой фильм');
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {

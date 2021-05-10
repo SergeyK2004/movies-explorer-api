@@ -55,7 +55,6 @@ const validateMovieBody = celebrate({
         );
       }),
     movieId: Joi.number().required(),
-    owner: Joi.string().required(),
   }),
 });
 
