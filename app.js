@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const helmet = require('helmet');
+// const helmet = require('helmet');
 const { limiter } = require('./middlewares/rate-limit');
 const router = require('./routes/index'); // импортируем роутер
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -20,7 +20,7 @@ mongoose.connect(DB_LINK, {
 
 app.use(requestLogger); // подключаем логгер запросов
 app.use(limiter); // подключим защиту от DDOS  ограничив запросы с одного IP
-app.use(helmet()); // используем автоматическое проставление заголовков безопасности
+// app.use(helmet()); // используем автоматическое проставление заголовков безопасности
 app.use('/', router); // перенаправим все на центральный роутер
 app.use(errorLogger); // подключаем логгер ошибок
 
