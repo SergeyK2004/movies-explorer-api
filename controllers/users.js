@@ -30,18 +30,22 @@ module.exports.createUser = (req, res, next) => {
   const { name, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      email,
-      password: hash,
-    }))
-    .then((user) => res.send({
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    }))
+    .then((hash) =>
+      User.create({
+        name,
+        email,
+        password: hash,
+      }),
+    )
+    .then((user) =>
+      res.send({
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      }),
+    )
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         next(new ConflictError('E-mail занят. Попробуйте другой.'));
@@ -95,7 +99,7 @@ module.exports.login = (req, res, next) => {
           JWT_SECRET,
           { expiresIn: '7d' }, // токен будет просрочен через неделю после создания
         );
-        res.send(token);
+        res.send({ data: token });
       });
     })
     .catch((err) => next(err));
