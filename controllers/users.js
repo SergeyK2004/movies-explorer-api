@@ -37,15 +37,22 @@ module.exports.createUser = (req, res, next) => {
         password: hash,
       }),
     )
-    .then((user) =>
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        JWT_SECRET,
+        { expiresIn: '7d' }, // токен будет просрочен через неделю после создания
+      );
+
       res.send({
         data: {
           _id: user._id,
           name: user.name,
           email: user.email,
+          token,
         },
-      }),
-    )
+      });
+    })
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         next(new ConflictError('E-mail занят. Попробуйте другой.'));
