@@ -37,8 +37,7 @@ app.set('trust proxy', 1);
 app.use(requestLogger); // подключаем логгер запросов
 app.use(limiter); // подключим защиту от DDOS  ограничив запросы с одного IP
 app.use(helmet()); // используем автоматическое проставление заголовков безопасности
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsOptions));
 app.use('/', router); // перенаправим все на центральный роутер
 app.use(errorLogger); // подключаем логгер ошибок
 
