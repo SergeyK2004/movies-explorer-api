@@ -11,38 +11,26 @@ const cardSchema = new mongoose.Schema({
   director: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
   },
   duration: {
     type: Number,
     required: true,
-    minlength: 2,
-    maxlength: 4,
   },
   year: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 4,
   },
   description: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 200,
   },
   nameRU: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
   },
   nameEN: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
   },
   trailer: {
     type: String,
