@@ -1,1 +1,3 @@
-# movies-explorer-api
+# Бэк выпускного дипломного проекта
+
+Написан на Node.JS в связке с MongoDb
